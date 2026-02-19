@@ -123,6 +123,21 @@ th { background: var(--surface-soft); }
 .loader { width: 22px; height: 22px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+@media (max-width: 759px) {
+  .container { width: min(1120px, 94vw); }
+  .nav-wrap { flex-direction: column; align-items: stretch; }
+  .brand { text-align: center; }
+  .search-box { width: 100%; min-width: 0; }
+  .nav-links { width: 100%; justify-content: center; }
+  .nav-link, .btn { width: 100%; text-align: center; }
+  .hero-box { min-height: 340px; padding: 1.1rem; }
+  .hero-box h1,
+  .hero-box p,
+  .hero-box .hero-actions,
+  .hero-box .badge { max-width: 100%; }
+  .tabs { flex-wrap: wrap; }
+}
+
 @media (min-width: 760px) {
   .cards-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cards-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
