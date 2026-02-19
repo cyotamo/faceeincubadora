@@ -414,6 +414,49 @@
     badge.classList.toggle('hidden', !window.AuthMock.isDemoAdmin());
   }
 
+  function setupMobileNav() {
+    const nav = document.querySelector('.site-header .nav-links');
+    if (!nav || nav.dataset.mobileReady === '1') return;
+
+    const firstLink = nav.querySelector('.nav-link');
+    const label = firstLink ? firstLink.textContent.trim() : 'Menu';
+    const toggle = document.createElement('button');
+    const navId = `mobileNav-${Math.random().toString(16).slice(2, 8)}`;
+
+    toggle.type = 'button';
+    toggle.className = 'mobile-nav-toggle btn btn-outline';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-controls', navId);
+    toggle.innerHTML = `<span>${label}</span><span class="mobile-nav-arrow" aria-hidden="true">▾</span>`;
+
+    nav.id = navId;
+    nav.dataset.mobileReady = '1';
+    nav.parentElement.insertBefore(toggle, nav);
+
+    function closeMenu() {
+      nav.classList.remove('mobile-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+
+    toggle.addEventListener('click', function () {
+      const open = nav.classList.toggle('mobile-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
+    nav.querySelectorAll('a, button').forEach((item) => {
+      item.addEventListener('click', function () {
+        if (window.matchMedia('(max-width: 759px)').matches) closeMenu();
+      });
+    });
+
+    window.addEventListener('resize', function () {
+      if (!window.matchMedia('(max-width: 759px)').matches) {
+        nav.classList.remove('mobile-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     setupDemoAdminFlag();
     requireAuth();
@@ -431,5 +474,6 @@
     bindModal();
     toggleValidationLink();
     toggleDemoBadge();
+    setupMobileNav();
   });
 })();
