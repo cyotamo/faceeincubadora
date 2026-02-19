@@ -1,57 +1,48 @@
-# Portal da Incubadora de Empresas (Protótipo)
+# Portal da Incubadora de Empresas (Protótipo Parte 2)
 
-Protótipo frontend (HTML/CSS/JS puro) para a **Incubadora de Negócios e Inovação – FACEE/UniRovuma**, com área pública e área reservada (autenticação simulada).
+Protótipo frontend em **HTML/CSS/JS puro** com polimento de produto, mantendo compatibilidade com GitHub Pages.
 
-## Estrutura
+## Como correr localmente
 
-- `index.html`
-- `public/`
-  - `procedimentos.html`
-  - `legislacao.html`
-  - `faq.html`
-  - `noticias.html`
-  - `contactos.html`
-- `app/`
-  - `login.html`
-  - `dashboard.html`
-  - `ficheiros.html`
-  - `tutoriais.html`
-  - `submissao.html`
-  - `acompanhamento.html`
-- `assets/`
-  - `css/styles.css`
-  - `js/app.js`
-  - `js/auth-mock.js`
-  - `img/`
-
-## Execução local
-
-Como é um site estático, pode abrir o `index.html` directamente no navegador. Para melhor compatibilidade, recomenda-se usar um servidor local:
+- Opção simples: abrir `index.html` no navegador.
+- Opção recomendada:
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Depois abra:
+Abrir `http://localhost:8080/`.
 
-- `http://localhost:8080/`
+## Estrutura do projecto
 
-## Lógica de autenticação (mock)
+- `index.html`
+- `public/`
+  - `procedimentos.html`, `legislacao.html`, `faq.html`, `noticias.html`, `contactos.html`, `pesquisa.html`
+- `app/`
+  - `login.html`, `inscricao.html`, `dashboard.html`, `submissao.html`, `acompanhamento.html`, `ficheiros.html`, `tutoriais.html`, `pesquisa.html`, `validacao.html`
+- `assets/css/styles.css`
+- `assets/js/app.js`
+- `assets/js/auth-mock.js`
+- `assets/js/search-index.js`
 
-- Estado de sessão gravado em `localStorage`.
-- Perfis suportados:
-  - **Estudante**: Número de Estudante (6-12 dígitos) + PIN (4-6 dígitos)
-  - **Empresa assistida**: NUIT (9 dígitos) + PIN (4-6 dígitos)
-- Páginas da pasta `app/` redireccionam para `app/login.html` caso não haja sessão válida.
-- Após login bem-sucedido, redirecciona para `app/dashboard.html`.
+## Modo demoAdmin
 
-## Deploy no GitHub Pages
+Para activar o menu/página de validação mock, aceda com query string:
 
-1. Faça push para o GitHub.
-2. Em **Settings > Pages**:
-   - **Source**: `Deploy from a branch`
-   - **Branch**: `main` (ou a branch desejada) e pasta `/ (root)`
-3. Guarde e aguarde a publicação.
-4. Aceda ao URL fornecido pelo GitHub Pages.
+- `app/login.html?admin=1`
 
-> O projecto utiliza apenas caminhos relativos, compatíveis com GitHub Pages.
+Isso grava `demoAdmin=true` em `localStorage` e mostra o link **Validação (demo)** no dashboard.
+
+## O que é mock nesta fase
+
+- Autenticação e registo em `localStorage`.
+- Estado de conta (`PENDENTE`, `APROVADO`, `RECUSADO`) simulado.
+- Aprovação/recusa em `app/validacao.html` apenas para demonstração.
+- Pesquisa baseada em índice estático JS.
+
+## O que será ligado ao backend na Parte 3
+
+- API de autenticação real (login/refresh/logout).
+- API de registo e workflow de validação com perfis e permissões.
+- API de pesquisa com indexação dinâmica.
+- Integração de ficheiros e notificações reais.
