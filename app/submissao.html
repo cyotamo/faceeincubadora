@@ -1,0 +1,14 @@
+<!doctype html><html lang="pt-PT"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Submissão</title><link rel="stylesheet" href="../assets/css/styles.css"></head><body>
+<header class="site-header"><div class="container nav-wrap"><a class="brand" href="../index.html">Incubadora FACEE/UniRovuma</a><nav class="nav-links"><a class="nav-link" href="dashboard.html">Dashboard</a><a class="nav-link active" href="submissao.html">Submissão</a><button class="btn btn-outline" data-logout type="button">Terminar sessão</button></nav></div></header>
+<main class="container"><section class="page-header"><span class="badge badge-private">Reservado</span><h1>Submeter candidatura</h1><p class="lead">Preencha os dados do projecto para registo no sistema interno.</p></section>
+<section class="form"><div id="submissionSuccess" class="success-box hidden">Submissão registada (protótipo).</div><form id="submissionForm" class="form-grid two-col">
+<label>Nome do projecto<input data-required="true" type="text"><span class="error"></span></label>
+<label>Sector<select data-required="true"><option value="">Seleccione</option><option>Tecnologia</option><option>Agro-negócio</option><option>Saúde</option><option>Educação</option><option>Energia</option></select><span class="error"></span></label>
+<label>Estágio / protótipo<input data-required="true" type="text" placeholder="Ideia, MVP, Produto em teste..."><span class="error"></span></label>
+<label>Equipa (n.º membros)<input data-required="true" type="number" min="1"><span class="error"></span></label>
+<label style="grid-column:1/-1;">Descrição do projecto<textarea data-required="true"></textarea><span class="error"></span></label>
+<label style="grid-column:1/-1;">Contacto de email<input data-required="true" id="contactoEmail" type="email"><span class="error"></span></label>
+<div style="grid-column:1/-1;"><button class="btn btn-primary" type="submit">Registar candidatura</button></div>
+</form></section></main>
+<footer class="footer"><div class="container">Validação apenas front-end.</div></footer>
+<script src="../assets/js/auth-mock.js"></script><script src="../assets/js/app.js"></script></body></html>

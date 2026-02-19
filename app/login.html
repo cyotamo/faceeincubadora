@@ -1,0 +1,7 @@
+<!doctype html><html lang="pt-PT"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Login | Área Reservada</title><link rel="stylesheet" href="../assets/css/styles.css"></head><body>
+<header class="site-header"><div class="container nav-wrap"><a class="brand" href="../index.html">Incubadora FACEE/UniRovuma</a><nav class="nav-links"><a class="nav-link" href="../index.html">Início</a><a class="nav-link active" href="login.html">Área Reservada 🔒</a></nav></div></header>
+<main class="container"><section class="page-header"><span class="badge badge-private">Reservado</span><h1>Acesso à área reservada</h1><p class="lead">Autenticação simulada para demonstração. Sem ligação a backend.</p></section>
+<section class="form"><form id="loginForm" class="form-grid"><label>Perfil<select id="tipoUtilizador"><option value="estudante">Estudante</option><option value="empresa">Empresa assistida</option></select></label><label id="identifierLabel">Número de Estudante<input id="identificador" type="text" placeholder="Ex.: 20234567" required></label><label>PIN<input id="pin" type="password" inputmode="numeric" placeholder="4-6 dígitos" required></label><span id="loginError" class="error"></span><button class="btn btn-primary" type="submit">Entrar</button></form></section>
+</main>
+<footer class="footer"><div class="container">Perfis suportados: Estudante e Empresa assistida.</div></footer>
+<script src="../assets/js/auth-mock.js"></script><script src="../assets/js/app.js"></script></body></html>
