@@ -29,7 +29,7 @@ Abrir `http://localhost:8080/`.
 
 Para activar o menu/página de validação mock, aceda com query string:
 
-- `app/login.html?admin=1`
+- `app/dashboard.html?admin=1` (também funciona em qualquer página de `app/`)
 
 Isso grava `demoAdmin=true` em `localStorage` e mostra o link **Validação (demo)** no dashboard.
 
@@ -46,3 +46,10 @@ Isso grava `demoAdmin=true` em `localStorage` e mostra o link **Validação (dem
 - API de registo e workflow de validação com perfis e permissões.
 - API de pesquisa com indexação dinâmica.
 - Integração de ficheiros e notificações reais.
+
+
+## Estados da conta
+
+- **PENDENTE**: inscrição submetida e aguarda validação da Incubadora.
+- **APROVADO**: login permitido e acesso ao dashboard.
+- **RECUSADO**: login bloqueado com instruções para contacto.
