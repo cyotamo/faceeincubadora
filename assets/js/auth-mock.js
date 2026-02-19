@@ -3,13 +3,16 @@
   const USERS_KEY = 'incubadora_users';
   const DEMO_ADMIN_KEY = 'demoAdmin';
 
-  function getSession() {
+  function safeParse(raw, fallback) {
     try {
-      const raw = localStorage.getItem(SESSION_KEY);
-      return raw ? JSON.parse(raw) : null;
+      return raw ? JSON.parse(raw) : fallback;
     } catch (err) {
-      return null;
+      return fallback;
     }
+  }
+
+  function getSession() {
+    return safeParse(localStorage.getItem(SESSION_KEY), null);
   }
 
   function setSession(session) {
@@ -20,68 +23,96 @@
     localStorage.removeItem(SESSION_KEY);
   }
 
+  function normalizeType(type) {
+    return type === 'empresa' ? 'empresa' : 'estudante';
+  }
+
   function validateIdentifier(type, value) {
-    return type === 'estudante' ? /^\d{6,12}$/.test(value) : /^\d{9}$/.test(value);
+    return normalizeType(type) === 'estudante' ? /^\d{6,12}$/.test(value) : /^\d{9}$/.test(value);
   }
 
   function validatePhone(phone) {
-    return /^(\+258)?\d{8,12}$/.test(phone.replace(/\s+/g, ''));
+    return /^(\+258)?\d{8,12}$/.test((phone || '').replace(/\s+/g, ''));
   }
 
   function validatePin(pin) {
     return /^\d{4,6}$/.test(pin);
   }
 
+  function encodePin(pin) {
+    return btoa(pin);
+  }
+
   function getUsers() {
-    try {
-      const raw = localStorage.getItem(USERS_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch (err) {
-      return [];
-    }
+    return safeParse(localStorage.getItem(USERS_KEY), []);
   }
 
   function saveUsers(users) {
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
   }
 
-  function findUser(type, identifier) {
-    return getUsers().find((u) => u.type === type && u.identifier === identifier);
+  function findUser(tipo, id) {
+    const t = normalizeType(tipo);
+    return getUsers().find((user) => user.tipo === t && user.id === id);
   }
 
   function registerUser(payload) {
     const users = getUsers();
-    if (users.some((u) => u.type === payload.type && u.identifier === payload.identifier)) {
+    const tipo = normalizeType(payload.tipo);
+    const id = payload.id;
+
+    if (users.some((user) => user.tipo === tipo && user.id === id)) {
       return { ok: false, message: 'Já existe uma conta com este identificador.' };
     }
 
-    users.push({ ...payload, status: 'PENDENTE', createdAt: new Date().toISOString() });
+    const user = {
+      id,
+      tipo,
+      nome: payload.nome,
+      email: payload.email,
+      telefone: payload.telefone,
+      pinHash: encodePin(payload.pin),
+      status: 'PENDENTE',
+      createdAt: new Date().toISOString()
+    };
+
+    if (payload.representante) user.representante = payload.representante;
+
+    users.push(user);
     saveUsers(users);
-    return { ok: true };
+    return { ok: true, user };
   }
 
-  function approveUser(type, identifier) {
+  function updateStatus(tipo, id, status) {
     const users = getUsers();
-    const user = users.find((u) => u.type === type && u.identifier === identifier);
+    const user = users.find((item) => item.tipo === normalizeType(tipo) && item.id === id);
     if (!user) return false;
-    user.status = 'APROVADO';
+    user.status = status;
     user.reviewedAt = new Date().toISOString();
     saveUsers(users);
     return true;
   }
 
-  function rejectUser(type, identifier) {
-    const users = getUsers();
-    const user = users.find((u) => u.type === type && u.identifier === identifier);
-    if (!user) return false;
-    user.status = 'RECUSADO';
-    user.reviewedAt = new Date().toISOString();
-    saveUsers(users);
-    return true;
+  function approveUser(tipo, id) {
+    return updateStatus(tipo, id, 'APROVADO');
   }
 
-  function createSession(type, identifier, status) {
-    return { type, identifier, status: status || 'APROVADO', timestamp: new Date().toISOString() };
+  function rejectUser(tipo, id) {
+    return updateStatus(tipo, id, 'RECUSADO');
+  }
+
+  function verifyPin(user, pin) {
+    return user && user.pinHash === encodePin(pin);
+  }
+
+  function createSession(user) {
+    return {
+      tipo: user.tipo,
+      id: user.id,
+      nome: user.nome,
+      status: user.status,
+      timestamp: new Date().toISOString()
+    };
   }
 
   function setDemoAdmin(enabled) {
@@ -104,6 +135,7 @@
     registerUser,
     approveUser,
     rejectUser,
+    verifyPin,
     createSession,
     setDemoAdmin,
     isDemoAdmin

@@ -2,6 +2,7 @@
   function path() { return window.location.pathname; }
   function isAppPage() { return path().includes('/app/'); }
   function isLoginPage() { return path().endsWith('/app/login.html') || path().endsWith('login.html'); }
+  function isValidationPage() { return path().endsWith('/app/validacao.html') || path().endsWith('validacao.html'); }
 
   function applyTheme(theme) {
     const root = document.documentElement;
@@ -27,16 +28,23 @@
     });
   }
 
-  function guardReservedRoutes() {
+  function requireAuth() {
     if (!isAppPage() || isLoginPage()) return;
-    if (!window.AuthMock.getSession()) window.location.href = 'login.html';
+    if (!window.AuthMock.getSession()) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    if (isValidationPage() && !window.AuthMock.isDemoAdmin()) {
+      window.location.href = 'dashboard.html';
+    }
   }
 
   function setupDemoAdminFlag() {
     const p = new URLSearchParams(window.location.search);
     if (p.get('admin') === '1' && window.AuthMock) {
       window.AuthMock.setDemoAdmin(true);
-      toast('Modo demoAdmin activo.', 'success');
+      toast('Modo demonstração activo.', 'success');
     }
   }
 
@@ -56,7 +64,7 @@
     const box = document.getElementById('profileInfo');
     const session = window.AuthMock.getSession();
     if (!box || !session) return;
-    box.innerHTML = `<strong>Tipo:</strong> ${session.type === 'estudante' ? 'Estudante' : 'Empresa'}<br><strong>Identificador:</strong> ${session.identifier}<br><small>Último acesso: ${new Date(session.timestamp).toLocaleString('pt-PT')}</small>`;
+    box.innerHTML = `<strong>Tipo:</strong> ${session.tipo === 'estudante' ? 'Estudante' : 'Empresa'}<br><strong>Identificador:</strong> ${session.id}<br><small>Último acesso: ${new Date(session.timestamp).toLocaleString('pt-PT')}</small>`;
   }
 
   function bindLogout() {
@@ -66,53 +74,85 @@
     }));
   }
 
-  function showPendingState(user) {
-    const panel = document.getElementById('pendingState');
-    if (!panel) return;
-    panel.classList.remove('hidden');
-    panel.querySelector('[data-user]').textContent = user.identifier;
-    const approveBtn = document.getElementById('simulateApproveBtn');
-    if (approveBtn) {
-      approveBtn.onclick = function () {
-        window.AuthMock.approveUser(user.type, user.identifier);
-        toast('Conta aprovada em modo demo.', 'success');
-        panel.classList.add('hidden');
-      };
-    }
-  }
-
   function bindLoginForm() {
     const form = document.getElementById('loginForm');
     if (!form) return;
+
+    const p = new URLSearchParams(window.location.search);
+    const created = document.getElementById('createdMessage');
+    if (created && p.get('created') === '1') {
+      created.classList.remove('hidden');
+    }
+
     const typeField = document.getElementById('tipoUtilizador');
     const idLabel = document.getElementById('identifierLabel');
     const idField = document.getElementById('identificador');
     const err = document.getElementById('loginError');
+    const pendingPanel = document.getElementById('pendingState');
 
     function updateLabel() {
-      if (typeField.value === 'empresa') { idLabel.textContent = 'NUIT'; idField.placeholder = 'Ex.: 400123456'; }
-      else { idLabel.textContent = 'Número de Estudante'; idField.placeholder = 'Ex.: 20234567'; }
+      if (typeField.value === 'empresa') {
+        idLabel.textContent = 'NUIT';
+        idField.placeholder = 'Ex.: 400123456';
+      } else {
+        idLabel.textContent = 'Número de Estudante';
+        idField.placeholder = 'Ex.: 20234567';
+      }
     }
-    updateLabel(); typeField.addEventListener('change', updateLabel);
+
+    function hidePending() {
+      if (pendingPanel) pendingPanel.classList.add('hidden');
+    }
+
+    updateLabel();
+    typeField.addEventListener('change', updateLabel);
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
+      hidePending();
+      err.textContent = '';
+
       const tipo = typeField.value;
       const identificador = idField.value.trim();
       const pin = document.getElementById('pin').value.trim();
-      err.textContent = '';
+
       if (!window.AuthMock.validateIdentifier(tipo, identificador)) {
-        err.textContent = tipo === 'empresa' ? 'NUIT inválido. Deve conter 9 dígitos.' : 'Número de Estudante inválido. Use entre 6 e 12 dígitos.'; return;
+        err.textContent = tipo === 'empresa'
+          ? 'NUIT inválido. Deve conter 9 dígitos.'
+          : 'Número de Estudante inválido. Use entre 6 e 12 dígitos.';
+        return;
       }
-      if (!window.AuthMock.validatePin(pin)) { err.textContent = 'PIN inválido. Use entre 4 e 6 dígitos.'; return; }
+
+      if (!window.AuthMock.validatePin(pin)) {
+        err.textContent = 'PIN inválido. Use entre 4 e 6 dígitos.';
+        return;
+      }
 
       const user = window.AuthMock.findUser(tipo, identificador);
-      if (user && user.pin !== pin) { err.textContent = 'PIN incorrecto.'; return; }
-      if (user && user.status === 'PENDENTE') { showPendingState(user); return; }
-      if (user && user.status === 'RECUSADO') { err.textContent = 'Conta recusada. Contacte a equipa da Incubadora.'; return; }
+      if (!user) {
+        err.textContent = 'Conta não encontrada. Faça inscrição.';
+        return;
+      }
 
-      const session = window.AuthMock.createSession(tipo, identificador, user ? user.status : 'APROVADO');
-      window.AuthMock.setSession(session);
+      if (!window.AuthMock.verifyPin(user, pin)) {
+        err.textContent = 'PIN incorrecto.';
+        return;
+      }
+
+      if (user.status === 'PENDENTE') {
+        if (pendingPanel) {
+          pendingPanel.classList.remove('hidden');
+          pendingPanel.querySelector('[data-user]').textContent = user.id;
+        }
+        return;
+      }
+
+      if (user.status === 'RECUSADO') {
+        err.textContent = 'Conta recusada. Contacte a Incubadora para rever a inscrição.';
+        return;
+      }
+
+      window.AuthMock.setSession(window.AuthMock.createSession(user));
       window.location.href = 'dashboard.html';
     });
   }
@@ -134,44 +174,111 @@
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
-      const type = document.getElementById('tipoRegisto').value;
-      const pin = document.getElementById(type + 'Pin').value.trim();
-      const pin2 = document.getElementById(type + 'Pin2').value.trim();
-      const email = document.getElementById(type + 'Email').value.trim();
-      const telefone = document.getElementById(type + 'Telefone').value.trim();
-      const identifier = type === 'empresa' ? document.getElementById('empresaNuit').value.trim() : document.getElementById('estudanteNumero').value.trim();
-      const nome = type === 'empresa' ? document.getElementById('empresaNome').value.trim() : document.getElementById('estudanteNome').value.trim();
-      const representante = type === 'empresa' ? document.getElementById('empresaRepresentante').value.trim() : '';
       const out = document.getElementById('inscricaoFeedback');
       out.textContent = '';
 
-      if (!window.AuthMock.validateIdentifier(type, identifier)) return out.textContent = type === 'empresa' ? 'NUIT inválido. Use 9 dígitos.' : 'Número de estudante inválido (6–12 dígitos).';
-      if (!/^\S+@\S+\.\S+$/.test(email)) return out.textContent = 'Email inválido.';
-      if (!window.AuthMock.validatePhone(telefone)) return out.textContent = 'Telefone inválido. Use +258 e 8–12 dígitos.';
-      if (!window.AuthMock.validatePin(pin)) return out.textContent = 'PIN inválido (4–6 dígitos).';
-      if (pin !== pin2) return out.textContent = 'A confirmação do PIN não coincide.';
+      const tipo = document.getElementById('tipoRegisto').value;
+      const terms = document.getElementById('termos').checked;
+      if (!terms) {
+        out.textContent = 'Deve concordar com os termos para continuar.';
+        return;
+      }
 
-      const result = window.AuthMock.registerUser({ type, identifier, name: nome, representante, email, telefone, pin });
-      if (!result.ok) return out.textContent = result.message;
-      toast('Inscrição submetida com estado PENDENTE.', 'success');
-      form.reset();
-      openModal('inscricaoModal');
+      let id;
+      let nome;
+      let email;
+      let telefone;
+      let pin;
+      let pin2;
+      let representante;
+
+      if (tipo === 'estudante') {
+        id = document.getElementById('estudanteNumero').value.trim();
+        nome = document.getElementById('estudanteNome').value.trim();
+        email = document.getElementById('estudanteEmail').value.trim();
+        telefone = document.getElementById('estudanteTelefone').value.trim();
+        pin = document.getElementById('estudantePin').value.trim();
+        pin2 = document.getElementById('estudantePin2').value.trim();
+      } else {
+        id = document.getElementById('empresaNuit').value.trim();
+        nome = document.getElementById('empresaNome').value.trim();
+        representante = document.getElementById('empresaRepresentante').value.trim();
+        email = document.getElementById('empresaEmail').value.trim();
+        telefone = document.getElementById('empresaTelefone').value.trim();
+        pin = document.getElementById('empresaPin').value.trim();
+        pin2 = document.getElementById('empresaPin2').value.trim();
+      }
+
+      if (!window.AuthMock.validateIdentifier(tipo, id)) {
+        out.textContent = tipo === 'empresa'
+          ? 'NUIT inválido. Deve conter 9 dígitos.'
+          : 'Número de estudante inválido. Deve conter 6–12 dígitos.';
+        return;
+      }
+      if (!nome || !email || !telefone) {
+        out.textContent = 'Preencha todos os campos obrigatórios.';
+        return;
+      }
+      if (tipo === 'empresa' && !representante) {
+        out.textContent = 'Indique o nome do representante.';
+        return;
+      }
+      if (!window.AuthMock.validatePhone(telefone)) {
+        out.textContent = 'Telefone inválido. Use formato local ou +258.';
+        return;
+      }
+      if (!window.AuthMock.validatePin(pin)) {
+        out.textContent = 'PIN inválido. Use 4–6 dígitos.';
+        return;
+      }
+      if (pin !== pin2) {
+        out.textContent = 'PIN e confirmação não coincidem.';
+        return;
+      }
+
+      const result = window.AuthMock.registerUser({
+        tipo,
+        id,
+        nome,
+        email,
+        telefone,
+        pin,
+        representante
+      });
+
+      if (!result.ok) {
+        out.textContent = result.message;
+        return;
+      }
+
+      toast('Inscrição submetida com sucesso.', 'success');
+      window.location.href = 'login.html?created=1';
     });
   }
 
   function bindValidationPage() {
     const table = document.getElementById('pendingUsersTable');
     if (!table) return;
+
     const body = table.querySelector('tbody');
 
     function render() {
       const pending = window.AuthMock.getUsers().filter((u) => u.status === 'PENDENTE');
-      body.innerHTML = pending.length ? '' : '<tr><td colspan="5">Sem utilizadores pendentes.</td></tr>';
+      body.innerHTML = pending.length ? '' : '<tr><td colspan="6">Sem utilizadores pendentes.</td></tr>';
+
       pending.forEach((user) => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${user.type}</td><td>${user.identifier}</td><td>${user.name}</td><td>${user.email}</td><td><button class="btn btn-primary" data-approve> Aprovar </button> <button class="btn btn-outline" data-reject> Recusar </button></td>`;
-        tr.querySelector('[data-approve]').addEventListener('click', () => { window.AuthMock.approveUser(user.type, user.identifier); toast('Utilizador aprovado.', 'success'); render(); });
-        tr.querySelector('[data-reject]').addEventListener('click', () => { window.AuthMock.rejectUser(user.type, user.identifier); toast('Utilizador recusado.', 'error'); render(); });
+        tr.innerHTML = `<td>${user.nome}</td><td>${user.tipo}</td><td>${user.id}</td><td>${user.email}</td><td>${new Date(user.createdAt).toLocaleDateString('pt-PT')}</td><td><button class="btn btn-primary" data-approve>Aprovar</button> <button class="btn btn-outline" data-reject>Recusar</button></td>`;
+        tr.querySelector('[data-approve]').addEventListener('click', function () {
+          window.AuthMock.approveUser(user.tipo, user.id);
+          toast('Utilizador aprovado.', 'success');
+          render();
+        });
+        tr.querySelector('[data-reject]').addEventListener('click', function () {
+          window.AuthMock.rejectUser(user.tipo, user.id);
+          toast('Utilizador recusado.', 'error');
+          render();
+        });
         body.appendChild(tr);
       });
     }
@@ -201,8 +308,6 @@
     });
   }
 
-
-
   function resultsPageUrl() {
     if (isAppPage()) return 'pesquisa.html';
     if (path().includes('/public/')) return 'pesquisa.html';
@@ -217,6 +322,7 @@
     if (path().includes('/public/') && url.startsWith('app/')) return '../' + url;
     return url;
   }
+
   function highlight(text, q) { return text.replace(new RegExp(`(${q})`, 'ig'), '<mark>$1</mark>'); }
 
   function setupSearch() {
@@ -287,14 +393,6 @@
   }
   window.toast = toast;
 
-  function openModal(id) {
-    const modal = document.getElementById(id);
-    if (!modal) return;
-    modal.classList.remove('hidden');
-    modal.querySelector('.modal-card').focus();
-  }
-  window.openModal = openModal;
-
   function bindModal() {
     document.querySelectorAll('[data-modal-close]').forEach((btn) => btn.addEventListener('click', function () {
       btn.closest('.modal').classList.add('hidden');
@@ -310,9 +408,15 @@
     link.classList.toggle('hidden', !window.AuthMock.isDemoAdmin());
   }
 
+  function toggleDemoBadge() {
+    const badge = document.getElementById('demoBadge');
+    if (!badge) return;
+    badge.classList.toggle('hidden', !window.AuthMock.isDemoAdmin());
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     setupDemoAdminFlag();
-    guardReservedRoutes();
+    requireAuth();
     initTheme();
     bindReservedLinks();
     bindLogout();
@@ -326,5 +430,6 @@
     setupSearchResultsPage();
     bindModal();
     toggleValidationLink();
+    toggleDemoBadge();
   });
 })();
