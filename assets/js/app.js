@@ -298,6 +298,23 @@
     });
   }
 
+
+  function bindPartnersRotator() {
+    const track = document.getElementById('partnersTrack');
+    if (!track || track.dataset.ready === '1') return;
+
+    const cards = Array.from(track.children);
+    if (cards.length < 2) return;
+
+    cards.forEach((card) => {
+      const clone = card.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      track.appendChild(clone);
+    });
+
+    track.dataset.ready = '1';
+  }
+
   function bindContactForm() {
     const form = document.getElementById('contactForm');
     if (!form) return;
@@ -481,6 +498,7 @@
     bindContactForm();
     bindSubmissionForm();
     bindAboutToggle();
+    bindPartnersRotator();
     hydrateProfile();
     setupSearch();
     setupSearchResultsPage();
