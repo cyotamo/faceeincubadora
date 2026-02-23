@@ -286,6 +286,18 @@
     render();
   }
 
+
+  function bindAboutToggle() {
+    const btn = document.getElementById('aboutToggle');
+    const container = document.getElementById('aboutContainer');
+    if (!btn || !container) return;
+
+    btn.addEventListener('click', function () {
+      const isHidden = container.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+    });
+  }
+
   function bindContactForm() {
     const form = document.getElementById('contactForm');
     if (!form) return;
@@ -468,6 +480,7 @@
     bindValidationPage();
     bindContactForm();
     bindSubmissionForm();
+    bindAboutToggle();
     hydrateProfile();
     setupSearch();
     setupSearchResultsPage();
