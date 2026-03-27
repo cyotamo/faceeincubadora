@@ -315,12 +315,11 @@
     track.dataset.ready = '1';
   }
 
-  async function enviarParaAPI(dados) {
+  async function enviarParaAPI(params) {
     if (!window.WEB_APP_URL) throw new Error('WEB_APP_URL não configurada.');
     const resposta = await fetch(window.WEB_APP_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dados)
+      body: params
     });
 
     if (!resposta.ok) throw new Error('Falha na resposta da API.');
@@ -364,11 +363,33 @@
       const submitBtn = form.querySelector('button[type="submit"]');
       if (submitBtn) submitBtn.disabled = true;
 
-      const dados = Object.fromEntries(new FormData(form));
-      dados.operacao = 'submeter';
+      const getFieldValue = (name) => {
+        const input = form.elements.namedItem(name);
+        return input && typeof input.value === 'string' ? input.value.trim() : '';
+      };
+
+      const params = new URLSearchParams();
+      params.append('operacao', 'submeter');
+      params.append('nome', getFieldValue('nome'));
+      params.append('nascimento', getFieldValue('nascimento'));
+      params.append('email', getFieldValue('email'));
+      params.append('contacto1', getFieldValue('contacto1'));
+      params.append('contacto2', getFieldValue('contacto2'));
+      params.append('morada', getFieldValue('morada'));
+      params.append('curso', getFieldValue('curso'));
+      params.append('faculdade', getFieldValue('faculdade'));
+      params.append('experiencia', getFieldValue('experiencia'));
+      params.append('nomeSocial', getFieldValue('nomeSocial'));
+      params.append('ideiaCentral', getFieldValue('ideiaCentral'));
+      params.append('tempo', getFieldValue('tempo'));
+      params.append('problema', getFieldValue('problema'));
+      params.append('descricao', getFieldValue('descricao'));
+      params.append('concorrencia', getFieldValue('concorrencia'));
+      params.append('suport', getFieldValue('suport'));
+      params.append('razao', getFieldValue('razao'));
 
       try {
-        const json = await enviarParaAPI(dados);
+        const json = await enviarParaAPI(params);
 
         if (json.sucesso) {
           msg.textContent = 'Submetido com sucesso!';
