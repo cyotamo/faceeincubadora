@@ -315,6 +315,73 @@
     track.dataset.ready = '1';
   }
 
+  function bindCompanyForm() {
+    const btn = document.getElementById('btnCriarEmpresa');
+    const modal = document.getElementById('modalFormulario');
+    const fechar = document.getElementById('fecharModal');
+    const form = document.getElementById('formEmpresa');
+    const msg = document.getElementById('mensagem');
+    if (!btn || !modal || !fechar || !form || !msg) return;
+
+    const API_URL = 'COLE_AQUI_URL_DO_BACK';
+
+    function openModal() {
+      modal.classList.remove('hidden');
+      modal.setAttribute('aria-hidden', 'false');
+      msg.textContent = '';
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    btn.addEventListener('click', openModal);
+    fechar.addEventListener('click', closeModal);
+    fechar.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') closeModal();
+    });
+
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeModal();
+    });
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      msg.textContent = 'A enviar...';
+      const submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      const dados = Object.fromEntries(new FormData(form));
+      dados.operacao = 'submeter';
+
+      try {
+        const resposta = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+
+        if (!resposta.ok) throw new Error('Falha na resposta da API.');
+        const json = await resposta.json();
+
+        if (json.sucesso) {
+          msg.textContent = 'Submetido com sucesso!';
+          form.reset();
+          toast('Candidatura submetida com sucesso.', 'success');
+        } else {
+          msg.textContent = json.mensagem || 'Não foi possível submeter a candidatura.';
+        }
+      } catch (erro) {
+        msg.textContent = 'Erro na ligação ao servidor.';
+        toast('Erro ao submeter candidatura.', 'error');
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
   function bindContactForm() {
     const form = document.getElementById('contactForm');
     if (!form) return;
@@ -498,6 +565,7 @@
     bindContactForm();
     bindSubmissionForm();
     bindAboutToggle();
+    bindCompanyForm();
     bindPartnersRotator();
     hydrateProfile();
     setupSearch();
