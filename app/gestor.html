@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Gestor | NUSEG Incubadora</title>
+  <link rel="stylesheet" href="../assets/css/gestor.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar" aria-label="Menu principal do gestor">
+      <div class="sidebar-brand">
+        <div class="brand-mark" aria-hidden="true">NU</div>
+        <div>
+          <strong>NUSEG Incubadora</strong>
+          <p>Sistema de Gestão</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-section="dashboard" type="button">
+          <span aria-hidden="true">📊</span> Dashboard
+        </button>
+        <button class="nav-item" data-section="candidaturas" type="button">
+          <span aria-hidden="true">📁</span> Candidaturas
+        </button>
+        <button class="nav-item" data-section="detalhes" type="button">
+          <span aria-hidden="true">🧾</span> Detalhes
+        </button>
+        <button class="nav-item" data-section="relatorios" type="button">
+          <span aria-hidden="true">📈</span> Relatórios
+        </button>
+        <button class="nav-item" data-section="configuracoes" type="button">
+          <span aria-hidden="true">⚙️</span> Configurações
+        </button>
+      </nav>
+    </aside>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <div>
+          <p class="overline">Área Reservada</p>
+          <h1 id="sectionTitle">Painel do Gestor</h1>
+        </div>
+        <div class="topbar-actions">
+          <div class="user-pill">
+            <strong>Gestor NUSEG</strong>
+            <span>Administrador</span>
+          </div>
+          <button class="btn btn-outline" type="button">Terminar sessão</button>
+        </div>
+      </header>
+
+      <main class="content" id="contentArea">
+        <section class="panel-section" data-panel="dashboard">
+          <h2>Resumo geral</h2>
+          <div class="cards-grid" id="cardsGrid"></div>
+        </section>
+
+        <section class="panel-section hidden" data-panel="candidaturas">
+          <div class="section-header">
+            <h2>Gestão de candidaturas</h2>
+            <div class="filters-inline">
+              <input id="searchInput" type="search" placeholder="Pesquisar por nome, email ou negócio">
+              <select id="statusFilter">
+                <option value="todos">Todos os estados</option>
+                <option value="pendente">Pendente</option>
+                <option value="em análise">Em análise</option>
+                <option value="aprovada">Aprovada</option>
+                <option value="rejeitada">Rejeitada</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Contacto</th>
+                  <th>Curso</th>
+                  <th>Negócio</th>
+                  <th>Estado</th>
+                  <th>Data</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="candidaturasTableBody"></tbody>
+            </table>
+          </div>
+          <div id="emptyState" class="empty-state hidden">
+            <h3>Sem resultados</h3>
+            <p>Não existem candidaturas com os filtros actuais.</p>
+          </div>
+        </section>
+
+        <section class="panel-section hidden" data-panel="detalhes">
+          <h2>Detalhes da candidatura</h2>
+          <p>Selecione uma candidatura em “Gestão de candidaturas” para visualizar os detalhes completos aqui.</p>
+          <div id="detalhesPanel" class="details-grid empty">
+            <p class="empty-text">Nenhuma candidatura selecionada.</p>
+          </div>
+        </section>
+
+        <section class="panel-section hidden" data-panel="relatorios">
+          <h2>Relatórios e estatísticas</h2>
+          <div class="reports-grid">
+            <article class="report-card">
+              <h3>Distribuição por estado</h3>
+              <div id="statusBars"></div>
+            </article>
+            <article class="report-card">
+              <h3>Total por curso</h3>
+              <ul id="cursoStats" class="stats-list"></ul>
+            </article>
+            <article class="report-card">
+              <h3>Total por faculdade</h3>
+              <ul id="faculdadeStats" class="stats-list"></ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel-section hidden" data-panel="configuracoes">
+          <h2>Configurações</h2>
+          <div class="config-grid">
+            <article class="config-card"><h3>Gestão de utilizadores</h3><p>Adicionar gestores, perfis e níveis de acesso.</p></article>
+            <article class="config-card"><h3>Parâmetros do sistema</h3><p>Janelas de candidatura, validações e critérios.</p></article>
+            <article class="config-card"><h3>Exportação</h3><p>Preparar exportação em CSV, PDF e integração BI.</p></article>
+            <article class="config-card"><h3>Integrações</h3><p>Conectar com email institucional e serviços externos.</p></article>
+            <article class="config-card"><h3>Permissões</h3><p>Definir autorização por área e auditoria de operações.</p></article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="detailsModal" class="modal">
+    <article class="modal-card">
+      <header>
+        <h3>Detalhes da candidatura</h3>
+        <button id="closeModal" class="icon-btn" type="button" aria-label="Fechar">✕</button>
+      </header>
+      <div id="modalBody"></div>
+    </article>
+  </dialog>
+
+  <script src="../assets/js/gestor.js"></script>
+</body>
+</html>
