@@ -9,13 +9,46 @@
 <a class="skip-link" href="#mainContent">Saltar para o conteúdo principal</a>
 
 <main id="mainContent">
-<section class="hero"><div class="container hero-box"><span class="badge badge-public">Público</span><h1>Apoio à criação e crescimento de startups</h1><p>Portal único para candidatura, mentoria e acompanhamento do ecossistema empreendedor.</p><div class="hero-topic-buttons"><button id="aboutToggle" class="hero-topic-btn" type="button" aria-expanded="false" aria-controls="aboutContainer">Sobre</button><a class="hero-topic-btn" href="#">Criar/Formalizar empresa</a><a class="hero-topic-btn" href="#">Ideia de negócio</a><a class="hero-topic-btn" href="#">Assistência</a><a class="hero-topic-btn" href="#">Ideia de inovação</a></div></div></section>
+<section class="hero"><div class="container hero-box"><span class="badge badge-public">Público</span><h1>Apoio à criação e crescimento de startups</h1><p>Portal único para candidatura, mentoria e acompanhamento do ecossistema empreendedor.</p><div class="hero-topic-buttons"><button id="aboutToggle" class="hero-topic-btn" type="button" aria-expanded="false" aria-controls="aboutContainer">Sobre</button><button id="btnCriarEmpresa" class="hero-topic-btn" type="button">Criar/Formalizar empresa</button><a class="hero-topic-btn" href="#">Ideia de negócio</a><a class="hero-topic-btn" href="#">Assistência</a><a class="hero-topic-btn" href="#">Ideia de inovação</a></div></div></section>
 <section class="section hero-about-section"><div class="container"><div id="aboutContainer" class="hero-about hidden" role="region" aria-label="Sobre o portal da incubadora"><p>O portal da Incubadora de Startups e Inovação da UniRovuma é uma plataforma de prestação de serviços de informação útil para o desenvolvimento de negócios e/ou inovação tecnológica e assistência remota, oferecendo um apoio estruturado que inclui o acompanhamento no desenvolvimento de ideias de negócios e inovação tecnológica, incubação, mentorias e consultoria especializada (formalização e desenvolvimento de empresas para a sua aceleração). Através da plataforma pode ter acesso infraestrutura física (Coworking), e redes de networking para transformar ideias inovadoras em negócios escaláveis.</p></div></div></section>
 <section class="section"><div class="container"><h2>Parceiros</h2><p class="lead">Instituições que reforçam a confiança e escala dos projectos incubados.</p><div class="partners-rotator" aria-label="Parceiros em rotação"><div class="partners-track" id="partnersTrack"><article class="card"><h3>Parceiro Académico</h3><p>Ligação com investigação aplicada e talento jovem.</p></article><article class="card"><h3>Parceiro Financeiro</h3><p>Apoio à literacia financeira e acesso a instrumentos de crédito.</p></article><article class="card"><h3>Parceiro Tecnológico</h3><p>Ferramentas de prototipagem e inovação digital.</p></article><article class="card"><h3>Parceiro Jurídico</h3><p>Suporte legal para formalização de empresas.</p></article><article class="card"><h3>Parceiro Industrial</h3><p>Validação de mercado e pilotos operacionais.</p></article><article class="card"><h3>Parceiro Social</h3><p>Impacto territorial e inclusão produtiva.</p></article></div></div></div></section>
 <section class="section"><div class="container"><h2>Impacto</h2><div class="grid cards-4"><article class="card"><h3>148</h3><p>Projectos apoiados</p></article><article class="card"><h3>620</h3><p>Mentorias realizadas</p></article><article class="card"><h3>410</h3><p>Empregos gerados</p></article><article class="card"><h3>72%</h3><p>Taxa de sobrevivência</p></article></div></div></section>
 <section class="section"><div class="container"><h2>Testemunhos</h2><div class="grid cards-3"><article class="card"><h3>Ana Cossa</h3><small>Fundadora, EdTech MZ</small><p>“A mentoria ajudou-nos a transformar uma ideia num produto escalável.”</p></article><article class="card"><h3>João Ussene</h3><small>Co-fundador, AgroLink</small><p>“Conseguimos validar mercado e fechar o primeiro contrato em 4 meses.”</p></article><article class="card"><h3>Neuza Meque</h3><small>Gestora de Programa</small><p>“A incubadora dá estrutura e disciplina para decisões de crescimento.”</p></article></div></div></section>
 </main>
 <footer class="footer"><div class="container">Contactos: +258 84 000 0000 | incubadora@unirovuma.ac.mz</div></footer>
+<div id="modalFormulario" class="modal hidden" aria-hidden="true" role="dialog" aria-labelledby="modalTitulo">
+  <div class="modal-content">
+    <span id="fecharModal" role="button" tabindex="0" aria-label="Fechar formulário">&times;</span>
+    <h2 id="modalTitulo">Registo de Candidatura</h2>
+    <form id="formEmpresa">
+      <div class="modal-grid">
+        <input type="text" name="nome" placeholder="Nome completo" required>
+        <input type="date" name="nascimento" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="text" name="contacto1" placeholder="Telefone" required>
+        <input type="text" name="contacto2" placeholder="Telefone alternativo">
+        <input type="text" name="morada" placeholder="Morada">
+        <input type="text" name="curso" placeholder="Curso">
+        <input type="text" name="faculdade" placeholder="Faculdade">
+      </div>
+
+      <textarea name="experiencia" placeholder="Experiência relevante"></textarea>
+
+      <h3>Ideia de Negócio</h3>
+
+      <input type="text" name="nomeSocial" placeholder="Nome do negócio">
+      <textarea name="ideiaCentral" placeholder="Ideia central"></textarea>
+      <textarea name="problema" placeholder="Problema que resolve"></textarea>
+      <textarea name="descricao" placeholder="Descrição detalhada"></textarea>
+      <textarea name="concorrencia" placeholder="Concorrência"></textarea>
+      <textarea name="suport" placeholder="Suporte / mercado"></textarea>
+      <textarea name="razao" placeholder="Por que esta ideia?"></textarea>
+
+      <button class="modal-submit-btn" type="submit">Submeter candidatura</button>
+      <p id="mensagem" aria-live="polite"></p>
+    </form>
+  </div>
+</div>
 <div id="toastContainer" class="toast-wrap" aria-live="polite"></div>
 <script src="assets/js/auth-mock.js"></script><script src="assets/js/search-index.js"></script><script src="assets/js/app.js"></script>
 </body></html>
